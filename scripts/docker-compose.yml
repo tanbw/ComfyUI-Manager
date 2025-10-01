@@ -1,35 +1,22 @@
-# docker-compose.yml
-version: "3.9"
-
 services:
   comfyui:
     # 指示 compose 使用当前目录下的 Dockerfile 进行构建
     build:
-      context: . 
+      context: .
     container_name: comfyui_gpu_service
-    
+
     # 端口映射: 将您电脑的 7865 端口映射到容器的 7865 端口
     ports:
       - "7865:7865"
+
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=all
       - HF_ENDPOINT=https://hf-mirror.com
       - COMFYUI_MANAGER_NO_UPDATE=1
-#    devices:
-#      - nvidia.com/gpu=all
-#    security_opt:
-#      - label=disable
-    # 数据卷挂载: 这是最关键的部分，用于持久化数据和模型
-    # 左边是您电脑上的路径，右边是容器内的路径
-    volumes:
-      - /home/models/comfyui:/app/ComfyUI/models
-      - /home/program_data/comfyui/input:/app/ComfyUI/input
-      - /home/program_data/comfyui/output:/app/ComfyUI/output
-      # 如果需要持久化 custom_nodes，可以取消下面这行的注释
-      - /home/program_data/comfyui/custom_nodes:/app/ComfyUI/custom_nodes
 
     # GPU 配置 (兼容 Docker 和 Podman)
+    # 使用 deploy 部分来配置资源预留，包括 GPU
     deploy:
       resources:
         reservations:
@@ -37,9 +24,22 @@ services:
             - driver: nvidia
               capabilities: [gpu]
               count: all # 使用所有可用的 GPU
-              
+
     # 其他推荐配置
+    # 注意：devices, security_opt, volumes, tty, stdin_open, restart, command 都是服务的顶级配置项
+    devices:
+      - nvidia.com/gpu=all
+    security_opt:
+      - label=disable
+    volumes:
+      # 数据卷挂载: 这是最关键的部分，用于持久化数据和模型
+      # 左边是您电脑上的路径，右边是容器内的路径
+      - D:/home/models/comfyui:/app/ComfyUI/models
+      - D:/home/program_data/comfyui/input:/app/ComfyUI/input
+      - D:/home/program_data/comfyui/output:/app/ComfyUI/output
+      # 如果需要持久化 custom_nodes，可以取消下面这行的注释
+      - D:/home/program_data/comfyui/custom_nodes:/app/ComfyUI/custom_nodes
     tty: true
     stdin_open: true
     restart: unless-stopped
-    command: ["./venv/bin/python", "main.py", "--listen", "0.0.0.0", "--port", "7865", "--preview-method", "auto","--lowvram"]
+    command: ["./venv/bin/python", "main.py", "--listen", "0.0.0.0", "--port", "7865", "--preview-method", "auto", "--lowvram"]
