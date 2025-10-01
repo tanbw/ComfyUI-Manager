@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # 1. 安装基础依赖：git 用于克隆仓库，python3-venv 用于创建虚拟环境
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git python3.10-venv python3-pip && \
+    apt-get install -y --no-install-recommends git python3.10-venv python3-pip libglib2.0-0 libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*
 
 # 2. 克隆 ComfyUI 和 ComfyUI-Manager 仓库
